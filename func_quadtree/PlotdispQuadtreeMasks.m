@@ -29,6 +29,13 @@ function PlotdispQuadtreeMasks(U,coordinatesFEMWorld,elementsFEM,CurrentImg,Curr
 warning off; load('./plotFiles/colormap_RdYlBu.mat','cMap');
 run('./plotFiles/Black_rainbow.m');
 
+% Zach edited
+Img_temp = imread(CurrentImg);
+if size(Img_temp,3) == 4
+    Img_temp = Img_temp(:,:,1:3);
+end
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%% convert pixel unit to the physical world unit %%%%%
 try um2px = DICpara.um2px; 
@@ -57,7 +64,7 @@ if Image2PlotResults == 1
 
         end
     else
-        CurrentImgMask = imread(CurrentImg)';
+        CurrentImgMask = Img_temp';
         for tempi = 1:size(coordinatesFEMWorldDef,1)
             try
                 if CurrentImgMask( round(coordinatesFEMWorldDef(tempi,1)/um2px), ...
@@ -77,8 +84,8 @@ end
 % ====== 1) dispx u ======
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 fig1=figure; ax1=axes;  
-try h1=imshow( flipud(imread(CurrentImg), [0,2^DICpara.imgBitDepth-1]) ,'InitialMagnification','fit');
-catch h1=surf(  flipud( imread(CurrentImg) ),'EdgeColor','none','LineStyle','none');
+try h1=imshow( flipud(Img_temp) ,'InitialMagnification','fit');
+catch h1=surf(  flipud( Img_temp),'EdgeColor','none','LineStyle','none');
 end
 
 axis on; axis equal; axis tight; box on; set(gca,'fontSize',18); view(2); set(gca,'ydir','normal');
@@ -90,6 +97,8 @@ alpha(h2,OrigDICImgTransparency);  colormap(jet); caxis auto;
 % colormap(cMap); caxis([-40,40]); % colormap(jet);  
 % caxis([-35,35]); % caxis([-0.025,0.025]); 
 % caxis([-1.1,1.1]);
+% clim([-1.9,1.9]) % Indentation
+% clim([ -23 , 15 ]) % Bio-printing
 % colormap(black_rainbow);  
 %  colormap(jet); caxis([-20 20]);
 % ax1.XTick = [100,200,300]; % Unit: px
@@ -114,8 +123,8 @@ cb2 = colorbar('Position',[.17+0.685+0.012 .11+.128 .03 .557 ]); % cb2.TickLabel
 % ====== 2) dispy v ======
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 fig1=figure; ax1=axes;  
-try h1=imshow( flipud(imread(CurrentImg), [0,2^DICpara.imgBitDepth-1]) ,'InitialMagnification','fit');
-catch h1=surf(  flipud( imread(CurrentImg) ),'EdgeColor','none','LineStyle','none');
+try h1=imshow( flipud(Img_temp) ,'InitialMagnification','fit');
+catch h1=surf(  flipud(Img_temp),'EdgeColor','none','LineStyle','none');
 end
 
 axis on; axis equal; axis tight; box on; set(gca,'fontSize',18); view(2); set(gca,'ydir','normal');
@@ -129,6 +138,8 @@ alpha(h2,OrigDICImgTransparency);  colormap(jet); caxis auto;
 % caxis([-0.7,0.7]); % caxis([-0.025,0.025]); 
 % colormap(black_rainbow);    caxis([-0.5,0]);
 %   colormap(jet); caxis([-20 20]);
+% clim([ -8.5 , 0 ])% Indentation
+%clim([ -15 , 15 ]) % Bio-printing
 % ax1.XTick = [100,200,300]; % Unit: px
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

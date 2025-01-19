@@ -118,10 +118,10 @@ for tempi = 1:temparrayLength
     ii = PtPosSeq(tempi,1);%for ii = gridx(1) : winstepsize : gridx(end)-winsize
         % ii is for x -or- horizontal direction of images
         
-        C = f(ii:ii+winsize(1), jj:jj+winsize(2));
+        C = f(ii:ii+winsize(1), jj:jj+winsize(2)); % Gray values of pixels in one subset
         
         D = g(ii-tempSizeOfSearchRegion(1):ii+winsize(1)+tempSizeOfSearchRegion(1), ...
-            jj-tempSizeOfSearchRegion(2):jj+winsize(2)+tempSizeOfSearchRegion(2) );
+            jj-tempSizeOfSearchRegion(2):jj+winsize(2)+tempSizeOfSearchRegion(2) );  % Gray values of pixels in one (subset + search region)
         
         try 
             XCORRF2OfCD0 = normxcorr2(C,D);
@@ -158,6 +158,11 @@ for tempi = 1:temparrayLength
         ytemp(tempi) = (jj+jj+winsize(2))/2; % y(cj1,ci1)=(jj+jj+winsize)/2;   % vertical position in image
         xtemp(tempi) = (ii+ii+winsize(1))/2; % x(cj1,ci1)=(ii+ii+winsize)/2;   % horizontal position in image
         
+        % Zach's revision:
+        %ytemp(tempi) = (jj+jj)/2; % y(cj1,ci1)=(jj+jj+winsize)/2;   % vertical position in image
+        %xtemp(tempi) = (ii+ii)/2; % x(cj1,ci1)=(ii+ii+winsize)/2;   % horizontal position in image
+
+
         % Update counters
         %ci1 = ci1 + 1;  % ci1 is moving horizontally for subsets
         

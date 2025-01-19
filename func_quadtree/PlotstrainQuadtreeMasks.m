@@ -44,6 +44,12 @@ function [strain_exx,strain_exy,strain_eyy,strain_principal_max,strain_principal
 warning off; load('./plotFiles/colormap_RdYlBu.mat','cMap');
 run('./plotFiles/Black_rainbow.m');
 
+% Zach edited
+Img_temp = imread(CurrentImg);
+if size(Img_temp,3) == 4
+    Img_temp = Img_temp(:,:,1:3);
+end
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%% convert pixel unit to the physical world unit %%%%%
 try um2px = DICpara.um2px; 
@@ -71,7 +77,7 @@ if Image2PlotResults == 1
             end
         end
     else
-        CurrentImgMask = imread(CurrentImg)';
+        CurrentImgMask = Img_temp';
         for tempi = 1:size(coordinatesFEMWorldDef,1)
             try
                 if CurrentImgMask( floor(coordinatesFEMWorldDef(tempi,1)/um2px), ...
@@ -87,6 +93,8 @@ if Image2PlotResults == 1
     end
 end
 %%%%%%%%%%% JY!!!Mask END %%%%%%%%%%%%%%%
+
+
 
 
 %% Compute strain components
@@ -111,8 +119,8 @@ strain_vonMises = sqrt(strain_principal_max.^2 + strain_principal_min.^2 - ...
 % ====== 1) Strain exx ======
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 fig1=figure; ax1=axes; 
-try h1=imshow( flipud(imread(CurrentImg), [0,2^DICpara.imgBitDepth-1]),'InitialMagnification','fit');
-catch h1=surf( flipud( imread(CurrentImg) ),'EdgeColor','none','LineStyle','none');
+try h1=imshow( flipud(Img_temp),'InitialMagnification','fit');
+catch h1=surf( flipud( Img_temp ),'EdgeColor','none','LineStyle','none');
 end
 
 axis on; axis equal; axis tight; box on; set(gca,'fontSize',18); view(2); set(gca,'ydir','normal');
@@ -124,8 +132,10 @@ alpha(h2,OrigDICImgTransparency); colormap(turbo(128)); caxis auto;
 % caxis([-0.02,0.02]);
 % colormap(jet); caxis([0,0.5]) % D Sample 
 % colormap(jet);   caxis([-0.25,0.25]) % foam
-% colormap(jet); caxis([-0.004,0]); % Sample 12
-colormap(black_rainbow_plus);    caxis([-0.15 0.15]);
+%colormap(jet); caxis([-0.004,0]); % Sample 12
+% clim([ -1.7 , 0.5 ])% Indentation
+%clim([ -0.1 , 0.15 ]) % Bio-printing
+%colormap(black_rainbow_plus);    caxis([-0.15 0.15]);
 % colormap(black_rainbow); caxis([-0.004,0.004]);
 % ax1.XTick = [100,200,300]; % Unit: px
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -147,8 +157,8 @@ cb2 = colorbar('Position',[.17+0.685+0.012 .11+.128 .03 .557 ]); %cb2.TickLabelI
 % ====== 2) Strain exy ======
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 fig1=figure; ax1=axes; 
-try h1=imshow( flipud(imread(CurrentImg), [0,2^DICpara.imgBitDepth-1]),'InitialMagnification','fit');
-catch h1=surf( flipud( imread(CurrentImg) ),'EdgeColor','none','LineStyle','none');
+try h1=imshow( flipud(Img_temp),'InitialMagnification','fit');
+catch h1=surf( flipud( Img_temp ),'EdgeColor','none','LineStyle','none');
 end
 
 axis on; axis equal; axis tight; box on; set(gca,'fontSize',18); view(2); set(gca,'ydir','normal');
@@ -161,7 +171,9 @@ alpha(h2,OrigDICImgTransparency); colormap(turbo(128)); caxis auto;
 % colormap(jet); caxis([-0.08,0.08]) % D Sample 
 % colormap(jet);  caxis([-0.25,0.25]) % foam
 % colormap(jet); caxis([-0.008,0.008]); % Sample 12 
-colormap(black_rainbow_plus);    caxis([-0.15 0.15]);
+%clim([ -0.6 , 0.7 ])% Indentation
+%clim([ -0.1 , 0.1 ]) % Bio-printing
+%colormap(black_rainbow_plus);    caxis([-0.15 0.15]);
 %   colormap(black_rainbow); caxis([-0.0018,0.0018]);
 % ax1.XTick = [100,200,300]; % Unit: px
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -183,8 +195,8 @@ cb2 = colorbar('Position',[.17+0.685+0.012 .11+.128 .03 .557 ]); %cb2.TickLabelI
 % ====== 3) Strain eyy ======
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 fig1=figure; ax1=axes; 
-try h1=imshow( flipud(imread(CurrentImg), [0,2^DICpara.imgBitDepth-1]),'InitialMagnification','fit');
-catch h1=surf( flipud( imread(CurrentImg) ),'EdgeColor','none','LineStyle','none');
+try h1=imshow( flipud(Img_temp),'InitialMagnification','fit');
+catch h1=surf( flipud( Img_temp ),'EdgeColor','none','LineStyle','none');
 end
 
 axis on; axis equal; axis tight; box on; set(gca,'fontSize',18); view(2); set(gca,'ydir','normal');
@@ -197,7 +209,9 @@ alpha(h2,OrigDICImgTransparency); colormap(turbo(128)); caxis auto;
 % colormap(jet); caxis([-0.15,0]) % D Sample 
 % colormap(jet);  caxis([-0.25,0.25])% foam
 % colormap(jet); caxis([-0.002,0.017]); % Sample 12 
-colormap(black_rainbow_plus);  caxis([-0.15 0.15]);
+%clim([ -1.2 , 0 ])% Indentation
+%clim([ -0.15 , 0.2 ]) % Bio-printing
+%colormap(black_rainbow_plus);  caxis([-0.15 0.15]);
 %  colormap(black_rainbow); caxis([-0.0021,0.0021]);
 % ax1.XTick = [100,200,300]; % Unit: px
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -216,133 +230,141 @@ cb2 = colorbar('Position',[.17+0.685+0.012 .11+.128 .03 .557 ]); %cb2.TickLabelI
 
   
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% % % ====== 4) Strain e_principal_max ======
-% % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% fig1=figure; ax1=axes; 
-% try h1=imshow( flipud(imread(CurrentImg)),'InitialMagnification','fit');
-% catch h1=surf(  flipud( imread(CurrentImg) ),'EdgeColor','none','LineStyle','none');
-% end
-% 
-% axis on; axis equal; axis tight; box on; set(gca,'fontSize',18); view(2); set(gca,'ydir','normal');
-% hold on; ax2=axes; h2=show([],elementsFEM(:,1:4),coordinatesFEMWorldDef/um2px,strain_principal_max,'NoEdgeColor');
-% set(gca,'fontSize',18); view(2); box on; axis equal;  axis tight;   
-% alpha(h2,OrigDICImgTransparency); colormap(jet); caxis auto;
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% %%%%%% TODO: manually modify colormap and caxis %%%%%%
-% % colormap(jet);  caxis auto; % D Sample 
+% % ====== 4) Strain e_principal_max ======
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+fig1=figure; ax1=axes; 
+try h1=imshow( flipud(Img_temp),'InitialMagnification','fit');
+catch h1=surf(  flipud( Img_temp ),'EdgeColor','none','LineStyle','none');
+end
+
+axis on; axis equal; axis tight; box on; set(gca,'fontSize',18); view(2); set(gca,'ydir','normal');
+hold on; ax2=axes; h2=show([],elementsFEM(:,1:4),coordinatesFEMWorldDef/um2px,strain_principal_max,'NoEdgeColor');
+set(gca,'fontSize',18); view(2); box on; axis equal;  axis tight;   
+alpha(h2,OrigDICImgTransparency); colormap(jet); caxis auto;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%% TODO: manually modify colormap and caxis %%%%%%
+% colormap(jet);  caxis auto; % D Sample 
 % colormap(jet); caxis auto % foam
-% % colormap(jet); caxis([0,0.02]); % Sample 12 
-% % colormap(jet); caxis([-0.2,0.2])
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-% linkaxes([ax1,ax2]);  % Link axes together
-% ax2.Visible = 'off'; ax2.XTick = []; ax2.YTick = []; % Hide the top axes
-% colormap(ax1,'gray'); % Give each one its own colormap
-% set([ax1,ax2],'Position',[.17 .11 .685 .815]);  
-% ax1.Visible = 'on'; ax1.TickLabelInterpreter = 'latex'; 
-% %%%%% convert pixel unit to the physical world unit %%%%%
-% xticklabels(ax1, num2cell(round(um2px*ax1.XTick*10)/10, length(ax1.XTick) )' );
-% yticklabels(ax1, num2cell(round(um2px*ax1.YTick*10)/10, length(ax1.YTick) )' );
-% cb2 = colorbar('Position',[.17+0.685+0.012 .11 .03 .815]); cb2.TickLabelInterpreter = 'latex';
-% 
+% colormap(jet); caxis([0,0.02]); % Sample 12 
+%clim([ -0.6 ,0.42  ])% Indentation
+%clim([ 0 , 0.25 ]) % Bio-printing
+% colormap(jet); caxis([-0.2,0.2])
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+linkaxes([ax1,ax2]);  % Link axes together
+ax2.Visible = 'off'; ax2.XTick = []; ax2.YTick = []; % Hide the top axes
+colormap(ax1,'gray'); % Give each one its own colormap
+set([ax1,ax2],'Position',[.17 .11 .685 .815]);  
+ax1.Visible = 'on'; ax1.TickLabelInterpreter = 'latex'; 
+%%%%% convert pixel unit to the physical world unit %%%%%
+xticklabels(ax1, num2cell(round(um2px*ax1.XTick*10)/10, length(ax1.XTick) )' );
+yticklabels(ax1, num2cell(round(um2px*ax1.YTick*10)/10, length(ax1.YTick) )' );
+cb2 = colorbar('Position',[.17+0.685+0.012 .11 .03 .815]); cb2.TickLabelInterpreter = 'latex';
+
 % 
 % 
 %   
 % % %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% % % ====== 5) Strain e_principal_min ======
-% % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% fig1=figure; ax1=axes; 
-% try h1=imshow( flipud(imread(CurrentImg)),'InitialMagnification','fit');
-% catch h1=surf(  flipud( imread(CurrentImg) ),'EdgeColor','none','LineStyle','none');
-% end
-% 
-% axis on; axis equal; axis tight; box on; set(gca,'fontSize',18); view(2); set(gca,'ydir','normal');
-% hold on; ax2=axes; h2=show([],elementsFEM(:,1:4),coordinatesFEMWorldDef/um2px,strain_principal_min,'NoEdgeColor');
-% set(gca,'fontSize',18); view(2); box on; axis equal;  axis tight;   
-% alpha(h2,OrigDICImgTransparency); colormap(jet); caxis auto;
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% %%%%%% TODO: manually modify colormap and caxis %%%%%%
-% % colormap(jet);  caxis auto; % D Sample 
+% % ====== 5) Strain e_principal_min ======
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+fig1=figure; ax1=axes; 
+try h1=imshow( flipud(Img_temp),'InitialMagnification','fit');
+catch h1=surf(  flipud( Img_temp ),'EdgeColor','none','LineStyle','none');
+end
+
+axis on; axis equal; axis tight; box on; set(gca,'fontSize',18); view(2); set(gca,'ydir','normal');
+hold on; ax2=axes; h2=show([],elementsFEM(:,1:4),coordinatesFEMWorldDef/um2px,strain_principal_min,'NoEdgeColor');
+set(gca,'fontSize',18); view(2); box on; axis equal;  axis tight;   
+alpha(h2,OrigDICImgTransparency); colormap(jet); caxis auto;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%% TODO: manually modify colormap and caxis %%%%%%
+% colormap(jet);  caxis auto; % D Sample 
 % colormap(jet); caxis auto % foam
-% % colormap(jet); caxis([-0.008,0]); % Sample 12 
-% % colormap(jet); caxis([-0.2,0.2])
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-% linkaxes([ax1,ax2]);  % Link axes together
-% ax2.Visible = 'off'; ax2.XTick = []; ax2.YTick = []; % Hide the top axes
-% colormap(ax1,'gray'); % Give each one its own colormap
-% set([ax1,ax2],'Position',[.17 .11 .685 .815]);  
-% ax1.Visible = 'on'; ax1.TickLabelInterpreter = 'latex'; 
-% %%%%% convert pixel unit to the physical world unit %%%%%
-% xticklabels(ax1, num2cell(round(um2px*ax1.XTick*10)/10, length(ax1.XTick) )' );
-% yticklabels(ax1, num2cell(round(um2px*ax1.YTick*10)/10, length(ax1.YTick) )' );
-% cb2 = colorbar('Position',[.17+0.685+0.012 .11 .03 .815]); cb2.TickLabelInterpreter = 'latex';
-% 
-% 
+% colormap(jet); caxis([-0.008,0]); % Sample 12 
+%clim([ -2 , 0 ])% Indentation
+%clim([-0.15 ,0.05  ]) % Bio-printing
+% colormap(jet); caxis([-0.2,0.2])
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+linkaxes([ax1,ax2]);  % Link axes together
+ax2.Visible = 'off'; ax2.XTick = []; ax2.YTick = []; % Hide the top axes
+colormap(ax1,'gray'); % Give each one its own colormap
+set([ax1,ax2],'Position',[.17 .11 .685 .815]);  
+ax1.Visible = 'on'; ax1.TickLabelInterpreter = 'latex'; 
+%%%%% convert pixel unit to the physical world unit %%%%%
+xticklabels(ax1, num2cell(round(um2px*ax1.XTick*10)/10, length(ax1.XTick) )' );
+yticklabels(ax1, num2cell(round(um2px*ax1.YTick*10)/10, length(ax1.YTick) )' );
+cb2 = colorbar('Position',[.17+0.685+0.012 .11 .03 .815]); cb2.TickLabelInterpreter = 'latex';
+
+
 % 
 %  
 % % %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% % % ====== 6) Strain e_max_shear ======
-% % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% fig1=figure; ax1=axes; 
-% try h1=imshow( flipud(imread(CurrentImg)),'InitialMagnification','fit');
-% catch h1=surf(  flipud( imread(CurrentImg) ),'EdgeColor','none','LineStyle','none');
-% end
-% 
-% axis on; axis equal; axis tight; box on; set(gca,'fontSize',18); view(2); set(gca,'ydir','normal');
-% hold on; ax2=axes; h2=show([],elementsFEM(:,1:4),coordinatesFEMWorldDef/um2px,strain_maxshear,'NoEdgeColor');
-% set(gca,'fontSize',18); view(2); box on; axis equal;  axis tight;   
-% alpha(h2,OrigDICImgTransparency); colormap(jet); caxis auto;
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% %%%%%% TODO: manually modify colormap and caxis %%%%%%
-% % colormap(jet);  caxis auto; % D Sample 
+% % ====== 6) Strain e_max_shear ======
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+fig1=figure; ax1=axes; 
+try h1=imshow( flipud(Img_temp),'InitialMagnification','fit');
+catch h1=surf(  flipud( Img_temp ),'EdgeColor','none','LineStyle','none');
+end
+
+axis on; axis equal; axis tight; box on; set(gca,'fontSize',18); view(2); set(gca,'ydir','normal');
+hold on; ax2=axes; h2=show([],elementsFEM(:,1:4),coordinatesFEMWorldDef/um2px,strain_maxshear,'NoEdgeColor');
+set(gca,'fontSize',18); view(2); box on; axis equal;  axis tight;   
+alpha(h2,OrigDICImgTransparency); colormap(jet); caxis auto;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%% TODO: manually modify colormap and caxis %%%%%%
+% colormap(jet);  caxis auto; % D Sample 
 % colormap(jet); caxis auto % foam
-% % colormap(jet); caxis([0,0.011]); % Sample 12 
-% % colormap(jet); caxis([0,0.2])
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-% linkaxes([ax1,ax2]);  % Link axes together
-% ax2.Visible = 'off'; ax2.XTick = []; ax2.YTick = []; % Hide the top axes
-% colormap(ax1,'gray'); % Give each one its own colormap
-% set([ax1,ax2],'Position',[.17 .11 .685 .815]);  
-% ax1.Visible = 'on'; ax1.TickLabelInterpreter = 'latex'; 
-% %%%%% convert pixel unit to the physical world unit %%%%%
-% xticklabels(ax1, num2cell(round(um2px*ax1.XTick*10)/10, length(ax1.XTick) )' );
-% yticklabels(ax1, num2cell(round(um2px*ax1.YTick*10)/10, length(ax1.YTick) )' );
-% cb2 = colorbar('Position',[.17+0.685+0.012 .11 .03 .815]); cb2.TickLabelInterpreter = 'latex';
-% 
-%  
+% colormap(jet); caxis([0,0.011]); % Sample 12 
+%clim([ 0 ,0.7  ])% Indentation
+%clim([ 0 ,0.12  ]) % Bio-printing
+% colormap(jet); caxis([0,0.2])
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+linkaxes([ax1,ax2]);  % Link axes together
+ax2.Visible = 'off'; ax2.XTick = []; ax2.YTick = []; % Hide the top axes
+colormap(ax1,'gray'); % Give each one its own colormap
+set([ax1,ax2],'Position',[.17 .11 .685 .815]);  
+ax1.Visible = 'on'; ax1.TickLabelInterpreter = 'latex'; 
+%%%%% convert pixel unit to the physical world unit %%%%%
+xticklabels(ax1, num2cell(round(um2px*ax1.XTick*10)/10, length(ax1.XTick) )' );
+yticklabels(ax1, num2cell(round(um2px*ax1.YTick*10)/10, length(ax1.YTick) )' );
+cb2 = colorbar('Position',[.17+0.685+0.012 .11 .03 .815]); cb2.TickLabelInterpreter = 'latex';
+
+
  
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% ====== 7) von Mises equivalent strain ======
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% fig1=figure; ax1=axes; 
-% try h1=imshow( flipud(imread(CurrentImg)),'InitialMagnification','fit');
-% catch h1=surf(  flipud( imread(CurrentImg) ),'EdgeColor','none','LineStyle','none');
-% end
-% 
-% axis on; axis equal; axis tight; box on; set(gca,'fontSize',18); view(2);  set(gca,'ydir','normal');
-% hold on; ax2=axes; h2=show([],elementsFEM(:,1:4),coordinatesFEMWorldDef/um2px,strain_vonMises,'NoEdgeColor');
-% set(gca,'fontSize',18); view(2); box on; axis equal;  axis tight;   
-% alpha(h2,OrigDICImgTransparency); colormap(turbo(12)); caxis auto;
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% %%%%%% TODO: manually modify colormap and caxis %%%%%%
-% % colormap(jet);  caxis auto; % D Sample 
-% %colormap(jet); caxis([0,0.5]); % foam
-% % colormap(jet); caxis([0,0.025]); % Sample 12 
-%  caxis([0,0.5])
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-% linkaxes([ax1,ax2]);  % Link axes together
-% ax2.Visible = 'off'; ax2.XTick = []; ax2.YTick = []; % Hide the top axes
-% colormap(ax1,'gray'); % Give each one its own colormap
-% set([ax1,ax2],'Position',[.17 .11 .685 .815]);  
-% ax1.Visible = 'on';% ax1.TickLabelInterpreter = 'latex'; 
-% %%%%% convert pixel unit to the physical world unit %%%%%
-% xticklabels(ax1, num2cell(round(um2px*ax1.XTick*10)/10, length(ax1.XTick) )' );
-% yticklabels(ax1, num2cell(round(um2px*ax1.YTick*10)/10, length(ax1.YTick) )' );
-% cb2 = colorbar('Position',[.17+0.685+0.012 .11 .03 .557]); %cb2.TickLabelInterpreter = 'latex';
-% 
+%====== 7) von Mises equivalent strain ======
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+fig1=figure; ax1=axes; 
+try h1=imshow( flipud(Img_temp),'InitialMagnification','fit');
+catch h1=surf(  flipud( Img_temp ),'EdgeColor','none','LineStyle','none');
+end
+
+axis on; axis equal; axis tight; box on; set(gca,'fontSize',18); view(2);  set(gca,'ydir','normal');
+hold on; ax2=axes; h2=show([],elementsFEM(:,1:4),coordinatesFEMWorldDef/um2px,strain_vonMises,'NoEdgeColor');
+set(gca,'fontSize',18); view(2); box on; axis equal;  axis tight;   
+alpha(h2,OrigDICImgTransparency); colormap(jet); caxis auto;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%% TODO: manually modify colormap and caxis %%%%%%
+% colormap(jet);  caxis auto; % D Sample 
+%colormap(jet); caxis([0,0.5]); % foam
+% colormap(jet); caxis([0,0.025]); % Sample 12 
+%clim([ 0 , 2.2 ])% Indentation
+%clim([ 0 , 0.3 ]) % Bio-printing
+ % caxis([0,0.5])
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+linkaxes([ax1,ax2]);  % Link axes together
+ax2.Visible = 'off'; ax2.XTick = []; ax2.YTick = []; % Hide the top axes
+colormap(ax1,'gray'); % Give each one its own colormap
+set([ax1,ax2],'Position',[.17 .11 .685 .815]);  
+ax1.Visible = 'on';% ax1.TickLabelInterpreter = 'latex'; 
+%%%%% convert pixel unit to the physical world unit %%%%%
+xticklabels(ax1, num2cell(round(um2px*ax1.XTick*10)/10, length(ax1.XTick) )' );
+yticklabels(ax1, num2cell(round(um2px*ax1.YTick*10)/10, length(ax1.YTick) )' );
+cb2 = colorbar('Position',[.17+0.685+0.012 .11 .03 .557]); %cb2.TickLabelInterpreter = 'latex';
+
 
 
 

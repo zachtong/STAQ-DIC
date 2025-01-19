@@ -56,6 +56,11 @@ fprintf('------------ Section 2 Done ------------ \n \n')
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % To solve each frame in an image sequence
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% debug
+% clear
+% load('C:\Users\13014\OneDrive - The University of Texas at Austin\Documents\MATLABCodes\STAQ-DIC\Debug\Base2.mat');
+
 for ImgSeqNum = 2 : length(ImgNormalized) 
 
     close all; 
@@ -118,17 +123,34 @@ for ImgSeqNum = 2 : length(ImgNormalized)
     % ====== Initial Value ======
     U0 = Init(u,v,cc.max,DICmesh.x0,DICmesh.y0,0); % [Temp code:] PlotuvInit;
     
-    for tempi = 1:size(u,1)
-        for tempj = 1:size(u,2)
-            try
-                if ~fNormalizedMask(x0temp(tempi,tempj),y0temp(tempi,tempj))
-                    U0(2*(tempj+(tempi-1)*(size(u,2)))) = nan;
-                    U0(2*(tempj+(tempi-1)*(size(u,2)))-1) = nan;
-                end
-            catch
-            end
-        end
-    end
+        
+    
+    % Zach Modified
+    % Set zero at holes
+    linearIndices1 = sub2ind(size(fNormalizedMask), DICmesh.coordinatesFEM(:,1), DICmesh.coordinatesFEM(:,2));
+    MaskOrNot1 = fNormalizedMask(linearIndices1);
+    % 是否需要考虑 g 的mask? TBD
+    % u_inv = u'; v_inv = v';
+    % linearIndices2 = sub2ind(size(gNormalizedMask), floor(DICmesh.coordinatesFEM(:,1)+u_inv(:)), floor(DICmesh.coordinatesFEM(:,2)+v_inv(:)));
+    % MaskOrNot2 = gNormalizedMask(linearIndices2);
+    % MaskOrNot = MaskOrNot1 + MaskOrNot2;
+    % nanIndex = find(MaskOrNot<2);
+
+    nanIndex = find(MaskOrNot1<1);
+    U0(2*nanIndex) = nan;
+    U0(2*nanIndex-1) = nan;
+
+    % for tempi = 1:size(u,1)
+    %     for tempj = 1:size(u,2)
+    %         try
+    %             if ~fNormalizedMask(x0temp(tempi,tempj),y0temp(tempi,tempj))
+    %                 U0(2*(tempj+(tempi-1)*(size(u,2)))) = nan;
+    %                 U0(2*(tempj+(tempi-1)*(size(u,2)))-1) = nan;
+    %             end
+    %         catch
+    %         end
+    %     end
+    % end
     
     
     % ====== Deal with incremental mode ======
@@ -141,13 +163,19 @@ for ImgSeqNum = 2 : length(ImgNormalized)
     
     % ====== Generate a quadtree mesh considering sample's complex geometry ======
     DICmesh.elementMinSize = DICpara.winsizeMin; % min element size in the refined quadtree mesh
+    
+    
+    % Notes: 
+    % Hanging nodes and sub-elements are placed on the last
+    % All the void regions are generating nodes but we can ignore them
+    % using maskfile later.
     GenerateQuadtreeMesh; % Generate the quadtree mesh
     
     % ====== No need to update search region in the incremental mode ======
     % DICpara.SizeOfFFTSearchRegion = [ ceil( max( [max(3+abs(U0(1:2:end))), 3] ) ), ...
     %                                  ceil( max( [max(3+abs(U0(2:2:end))), 3] ) ) ];
     
-    % ====== Stpre current mesh ======
+    % ====== Store current mesh ======
     ResultFEMeshEachFrame{ImgSeqNum-1} = struct( 'coordinatesFEM',DICmesh.coordinatesFEM,'elementsFEM',DICmesh.elementsFEM,'markCoordHoleEdge',DICmesh.markCoordHoleEdge );
     fprintf('------------ Section 3 Done ------------ \n \n')
 
@@ -553,8 +581,8 @@ end
 
 close(hbar); 
 %%%%%%% TODO %%%%%%%
-Plotdisp_show( ResultDisp{20-1}.U_accum,ResultFEMeshEachFrame{1}.coordinatesFEM, ...
-       ResultFEMeshEachFrame{1}.elementsFEM(:,1:4),DICpara,'EdgeColor');
+ Plotdisp_show( ResultDisp{20-1}.U_accum,ResultFEMeshEachFrame{1}.coordinatesFEM, ...
+        ResultFEMeshEachFrame{1}.elementsFEM(:,1:4),DICpara,'EdgeColor');
 
 
 
@@ -580,7 +608,7 @@ end
 % ------ Choose strain type (infinitesimal, Eulerian, Green-Lagrangian) ------
 DICpara.StrainType = funParaInput('StrainType');
 % ------ Choose image to plot (first only, second and next images) ------
-if length(ImgNormalized)==2, DICpara.Image2PlotResults = funParaInput('Image2PlotResults');
+if length(ImgNormalized)~=2, DICpara.Image2PlotResults = funParaInput('Image2PlotResults');
 else DICpara.Image2PlotResults = 1; % Plot over current, deformed image by default
 end
 % ------ Save fig format ------
@@ -591,6 +619,8 @@ if DICpara.MethodToSaveFig == 1
     DICpara.OrigDICImgTransparency = funParaInput('OrigDICImgTransparency');         
 end
 
+% Clear the output path before saving
+DICpara.outputFilePath = [];
 
 %% ====== Start main part ======
 % This section is to calculate strain fields based on the transformed
@@ -603,8 +633,11 @@ end
 % v.FrameRate = 10;
 % open(v);
 
+% debug
+% clear
+% load('.\Debug\ch1_sample3_data_3images.mat');
  
-for ImgSeqNum =  [ 2  : 1 : length(ImgNormalized) ] 
+for ImgSeqNum =  [ 2 : 1 : length(ImgNormalized) ] 
     
     close all; disp(['Current image frame #: ', num2str(ImgSeqNum),'/',num2str(length(ImgNormalized))]);
      
@@ -723,13 +756,16 @@ for ImgSeqNum =  [ 2  : 1 : length(ImgNormalized) ]
             %    strain_maxshear,strain_vonMises] = PlotstrainQuadtree(UWorld,FStraintemp, ...
             %    coordinatesFEMWorld,elementsFEM(:,1:4),file_name{1,ImgSeqNum},DICpara);
 
+            % Zach edited
+            fullFilePath = fullfile(file_name{2, ImgSeqNum}, file_name{1, ImgSeqNum});
+
             %%%%%% New codes: applying mask files %%%%%%
             PlotdispQuadtreeMasks(UWorld,coordinatesFEMWorld,elementsFEM(:,1:4),...
-                 file_name{1, ImgSeqNum}, ImgMask{ ImgSeqNum },DICpara);
+                 fullFilePath, ImgMask{ ImgSeqNum },DICpara);
             
             [strain_exx,strain_exy,strain_eyy,strain_principal_max,strain_principal_min, ...
                strain_maxshear,strain_vonMises] = PlotstrainQuadtreeMasks(UWorld,FStrainWorld, ...
-               coordinatesFEMWorld,elementsFEM(:,1:4),file_name{1, ImgSeqNum}, ...
+               coordinatesFEMWorld,elementsFEM(:,1:4),fullFilePath, ...
                ImgMask{ImgSeqNum },DICpara);
            
            

@@ -44,9 +44,9 @@ if (InitFFTSearchMethod == 1) || (InitFFTSearchMethod == 2)
         fprintf('the search zone size until it is larger than the magnitudes of |disp u| and |disp v|. \n');
         fprintf('User could also input [size_x, size_y] to search in a rectangular zone. \n');
         
-%        prompt = 'Input here: ';
-%        tempSizeOfSearchRegion = input(prompt);
-       tempSizeOfSearchRegion = 6;
+       prompt = 'Input here: ';
+       tempSizeOfSearchRegion = input(prompt);
+       %tempSizeOfSearchRegion = 6;
 
         if length(tempSizeOfSearchRegion) == 1, tempSizeOfSearchRegion = tempSizeOfSearchRegion*[1,1]; end
 

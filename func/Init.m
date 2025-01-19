@@ -166,16 +166,25 @@ if (index == 1)
 end
 
 %% Initial Value
-U000 = zeros(2*size(x,1)*size(y,2),1); Phi0 = zeros(size(x,1)*size(y,2),1);
+%  U000 = zeros(2*size(x,1)*size(y,2),1); % Phi0 = zeros(size(x,1)*size(y,2),1);
+% uInit = uInit'; vInit = vInit'; % Here transpose bcz following give valus in column order
+% % PhiInit = Phi';
+% for i = 1:(size(x,1)*size(y,2))
+%     U000(2*i-1) = uInit(i); % 0; %u(i);
+%     U000(2*i)   = vInit(i); % 0; %v(i);
+%     % Phi0(i)   = PhiInit(i); 
+% end
+% U0 = U000;
+
+% Zach modified
 uInit = uInit'; vInit = vInit'; % Here transpose bcz following give valus in column order
-PhiInit = Phi';
-for i = 1:(size(x,1)*size(y,2))
-    U000(2*i-1) = uInit(i); % 0; %u(i);
-    U000(2*i)   = vInit(i); % 0; %v(i);
-    % Phi0(i)   = PhiInit(i); 
-end
+n = numel(uInit);
+U0  = zeros(2*n, 1);
+U0 (1:2:end) = uInit;
+U0 (2:2:end) = vInit; 
+
 disp('Finish setting up mesh and assigning initial value!')
  
-U0 = U000;
+
 
 

@@ -48,6 +48,11 @@ fprintf('------------ Section 2 Done ------------ \n \n')
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % To solve each frame in an image sequence
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% % Zach debug
+% clear
+% load('./Debug/Base.mat');
+
 for ImgSeqNum = 2 : length(ImgNormalized) 
  
 
@@ -130,22 +135,33 @@ for ImgSeqNum = 2 : length(ImgNormalized)
         [DICmesh] = MeshSetUp(x0temp,y0temp,DICpara); % clear x0temp y0temp;
         % ====== Initial Value ======
         U0 = Init(u,v,cc.max,DICmesh.x0,DICmesh.y0,0);  
-         
-        for tempi = 1:size(u,1)
-            for tempj = 1:size(u,2)
-                try
-                    if ~fNormalizedMask(x0temp(tempi,tempj),y0temp(tempi,tempj)) || ...
-                           ~gNormalizedMask( floor(x0temp(tempi,tempj)+u(tempi,tempj)), floor(y0temp(tempi,tempj)+v(tempi,tempj)) )
-                         
-                        U0(2*(tempj+(tempi-1)*(size(u,2)))) = nan;
-                        U0(2*(tempj+(tempi-1)*(size(u,2)))-1) = nan;
-
-                    end
-                catch
-                end
-            end
-        end
         
+        % Zach Modified
+        linearIndices1 = sub2ind(size(fNormalizedMask), DICmesh.coordinatesFEM(:,1), DICmesh.coordinatesFEM(:,2));
+        MaskOrNot1 = fNormalizedMask(linearIndices1);
+        u_inv = u'; v_inv = v';
+        linearIndices2 = sub2ind(size(gNormalizedMask), floor(DICmesh.coordinatesFEM(:,1)+u_inv(:)), floor(DICmesh.coordinatesFEM(:,2)+v_inv(:)));
+        MaskOrNot2 = gNormalizedMask(linearIndices2);
+        MaskOrNot = MaskOrNot1 + MaskOrNot2;
+        nanIndex = find(MaskOrNot<2);
+        U0(2*nanIndex) = nan;
+        U0(2*nanIndex-1) = nan;
+         
+        % for tempi = 1:size(u,1)
+        %     for tempj = 1:size(u,2)
+        %         try
+        %             if ~fNormalizedMask(x0temp(tempi,tempj),y0temp(tempi,tempj)) || ...
+        %                    ~gNormalizedMask( floor(x0temp(tempi,tempj)+u(tempi,tempj)), floor(y0temp(tempi,tempj)+v(tempi,tempj)) )
+        % 
+        %                 U0(2*(tempj+(tempi-1)*(size(u,2)))) = nan;
+        %                 U0(2*(tempj+(tempi-1)*(size(u,2)))-1) = nan;
+        % 
+        %             end
+        %         catch
+        %         end
+        %     end
+        % end
+        % 
         
         % ====== Deal with incremental mode ======
         fNormalizedNewIndex = ImgSeqNum-mod(ImgSeqNum-2,DICpara.ImgSeqIncUnit)-1;

@@ -103,7 +103,7 @@ switch DICpara.MethodToComputeStrain
 
             try
                  
-                %%%%% Find those nodes %%%%%
+                %%%%% Find those nodes %%%%% 
                 indPxtempi = sub2ind( Dg.imgSize, stats(tempi).PixelList(:,2), stats(tempi).PixelList(:,1) );
                 Lia = ismember(indPxAll,indPxtempi); [LiaList,~] = find(Lia==1);
                 % figure, plot(coordinatesFEM(LiaList,1),coordinatesFEM(LiaList,2),'.');

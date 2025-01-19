@@ -1,42 +1,53 @@
 % Save figures or output images for solved displacement and strain fields
 
 %%
-
-% [~,imgname,imgext] = fileparts(file_name{1,ImgSeqNum}); % Find img name
+% Find img name
+[~,imgname,imgext] = fileparts([file_name{2,ImgSeqNum},'\',file_name{1,ImgSeqNum}]);
+%%
+if isempty(DICpara.outputFilePath)
+    DICpara.outputFilePath = uigetdir;
+    outputVariables = {'DispU','DispV','exx','exy','eyy','strain_principle_max','strain_principle_min','strain_maxshear','strain_vonMises','stress_vonMises'};
+    for i = 1:length(outputVariables)
+        tempfolder_path = [DICpara.outputFilePath,'\',outputVariables{i}];
+        if ~exist(tempfolder_path, 'dir')  
+            mkdir(tempfolder_path);  
+        end
+    end
+end
 
 %%
 if DICpara.MethodToSaveFig == 1
     %% jpg
     figure(1); if DICpara.OrigDICImgTransparency == 0, colormap jet; caxis auto; end
-    print([imgname,'_WS',num2str(DICpara.winsize),'_ST',num2str(DICpara.winstepsize),'_Disp_x'],'-djpeg','-r300');
+    print([DICpara.outputFilePath,'\DispU\',imgname,'_WS',num2str(DICpara.winsize),'_ST',num2str(DICpara.winstepsize),'_Disp_x'],'-djpeg','-r300');
     
     figure(2); if DICpara.OrigDICImgTransparency == 0, colormap jet; caxis auto; end
-    print([imgname,'_WS',num2str(DICpara.winsize),'_ST',num2str(DICpara.winstepsize),'_Disp_y'],'-djpeg','-r300');
+    print([DICpara.outputFilePath,'\DispV\',imgname,'_WS',num2str(DICpara.winsize),'_ST',num2str(DICpara.winstepsize),'_Disp_y'],'-djpeg','-r300');
     
     figure(3); if DICpara.OrigDICImgTransparency == 0, colormap jet; caxis([-0.025,0.025]); end
-    print([imgname,'_WS',num2str(DICpara.winsize),'_ST',num2str(DICpara.winstepsize),'_strain_exx'],'-djpeg','-r300');
+    print([DICpara.outputFilePath,'\exx\',imgname,'_WS',num2str(DICpara.winsize),'_ST',num2str(DICpara.winstepsize),'_strain_exx'],'-djpeg','-r300');
     
     figure(4); if DICpara.OrigDICImgTransparency == 0, colormap jet; caxis([-0.025,0.025]); end
-    print([imgname,'_WS',num2str(DICpara.winsize),'_ST',num2str(DICpara.winstepsize),'_strain_exy'],'-djpeg','-r300')
+    print([DICpara.outputFilePath,'\exy\',imgname,'_WS',num2str(DICpara.winsize),'_ST',num2str(DICpara.winstepsize),'_strain_exy'],'-djpeg','-r300')
     
     figure(5); if DICpara.OrigDICImgTransparency == 0, colormap jet; caxis([-0.015,0.015]); end
-    print([imgname,'_WS',num2str(DICpara.winsize),'_ST',num2str(DICpara.winstepsize),'_strain_eyy'],'-djpeg','-r300')
+    print([DICpara.outputFilePath,'\eyy\',imgname,'_WS',num2str(DICpara.winsize),'_ST',num2str(DICpara.winstepsize),'_strain_eyy'],'-djpeg','-r300')
 
-%         figure(6); if DICpara.OrigDICImgTransparency == 0, colormap jet; caxis([-0.025,0.025]); end
-%     print([imgname,'_WS',num2str(DICpara.winsize),'_ST',num2str(DICpara.winstepsize),'_strain_vonMises'],'-djpeg','-r300');
+%   figure(6); if DICpara.OrigDICImgTransparency == 0, colormap jet; caxis([-0.025,0.025]); end
+%     print([DICpara.outputFilePath,'\DispU\',imgname,'_WS',num2str(DICpara.winsize),'_ST',num2str(DICpara.winstepsize),'_strain_vonMises'],'-djpeg','-r300');
     
-    %figure(6); if DICpara.OrigDICImgTransparency == 0, colormap jet;  caxis([0,0.025]); end
-    %print([imgname,'_WS',num2str(DICpara.winsize),'_ST',num2str(DICpara.winstepsize),'_strain_principal_max'],'-djpeg','-r300')
+    figure(6); if DICpara.OrigDICImgTransparency == 0, colormap jet;  caxis([0,0.025]); end
+    print([DICpara.outputFilePath,'\strain_principle_max\',imgname,'_WS',num2str(DICpara.winsize),'_ST',num2str(DICpara.winstepsize),'_strain_principal_max'],'-djpeg','-r300')
     
-    %figure(7); if DICpara.OrigDICImgTransparency == 0, colormap jet;  caxis([-0.025,0]); end
-    %print([imgname,'_WS',num2str(DICpara.winsize),'_ST',num2str(DICpara.winstepsize),'_strain_principal_min'],'-djpeg','-r300')
+    figure(7); if DICpara.OrigDICImgTransparency == 0, colormap jet;  caxis([-0.025,0]); end
+    print([DICpara.outputFilePath,'\strain_principle_min\',imgname,'_WS',num2str(DICpara.winsize),'_ST',num2str(DICpara.winstepsize),'_strain_principal_min'],'-djpeg','-r300')
     
-    %figure(8); if DICpara.OrigDICImgTransparency == 0, colormap jet;  caxis([0,0.07]); end
-    %print([imgname,'_WS',num2str(DICpara.winsize),'_ST',num2str(DICpara.winstepsize),'_strain_maxshear'],'-djpeg','-r300')
+    figure(8); if DICpara.OrigDICImgTransparency == 0, colormap jet;  caxis([0,0.07]); end
+    print([DICpara.outputFilePath,'\strain_maxshear\',imgname,'_WS',num2str(DICpara.winsize),'_ST',num2str(DICpara.winstepsize),'_strain_maxshear'],'-djpeg','-r300')
     
-    %figure(9); if DICpara.OrigDICImgTransparency == 0, colormap jet;  caxis([0,0.07]); end
-    %print([imgname,'_WS',num2str(DICpara.winsize),'_ST',num2str(DICpara.winstepsize),'_strain_vonMises'],'-djpeg','-r300')
-%     
+    figure(9); if DICpara.OrigDICImgTransparency == 0, colormap jet;  caxis([0,0.07]); end
+    print([DICpara.outputFilePath,'\strain_vonMises\',imgname,'_WS',num2str(DICpara.winsize),'_ST',num2str(DICpara.winstepsize),'_strain_vonMises'],'-djpeg','-r300')
+    
 %     figure(2); if DICpara.OrigDICImgTransparency == 0, colormap jet; caxis([-0.025,0.025]); end
 %     print([imgname,'_WS',num2str(DICpara.winsize),'_ST',num2str(DICpara.winstepsize),'_strain_err'],'-djpeg','-r300');
 
@@ -49,9 +60,9 @@ if DICpara.MethodToSaveFig == 1
 %     figure(1); if DICpara.OrigDICImgTransparency == 0, colormap jet; caxis([-0.025,0.025]); end
 %     print([imgname,'_WS',num2str(DICpara.winsize),'_ST',num2str(DICpara.winstepsize),'_p_hydrostatic'],'-djpeg','-r300');
 %     
-%     figure(2); if DICpara.OrigDICImgTransparency == 0, colormap jet; caxis([-0.025,0.025]); end
-%     print([imgname,'_WS',num2str(DICpara.winsize),'_ST',num2str(DICpara.winstepsize),'_stress_vonMises'],'-djpeg','-r300');
-%     
+    figure(10); if DICpara.OrigDICImgTransparency == 0, colormap jet; caxis([-0.025,0.025]); end
+    print([DICpara.outputFilePath,'\stress_vonMises\',imgname,'_WS',num2str(DICpara.winsize),'_ST',num2str(DICpara.winstepsize),'_stress_vonMises'],'-djpeg','-r300');
+    
 %     figure(5); if DICpara.OrigDICImgTransparency == 0, colormap jet; caxis([-0.025,0.025]); end
 %     print([imgname,'_WS',num2str(DICpara.winsize),'_ST',num2str(DICpara.winstepsize),'_Jacobian'],'-djpeg','-r300');
     

@@ -72,8 +72,10 @@ for i = 1:numImages
     Img{i} = imread(file_name{1,i});
     % Change color RGB images to grayscale images
     [~, ~, numberOfColorChannels] = size(Img{i});
-    if (numberOfColorChannels==3)
+    if numberOfColorChannels==3
         Img{i} = rgb2gray(Img{i});
+    elseif numberOfColorChannels==4
+        Img{i} = rgb2gray(Img{i}(:,:,1:3));
     end
     Img{i} = double(Img{i})';
 end
@@ -102,14 +104,21 @@ end
 % Decide DIC subset parameters
 imgInfo = imfinfo(file_name{1});
 DICpara.imgBitDepth = imgInfo.BitDepth;
-DICpara.imgBitDepth = 9.5;
+%DICpara.imgBitDepth = 9.5;
 
 % Choose region of interest (ROI)
 fprintf('\n');
 disp('--- Please change the value of "DICpara.imgBitDepth" if your image is too dark/bright ---');
 disp('--- Press "Ctrl + C" to change it in ".\func_quadtree\ReadImageQuadtree.m" line 105 ---');
 disp('--- Define ROI corner points at the top-left and the bottom-right ---')
-imshow( (imread(file_name{1})), [0,2^DICpara.imgBitDepth-1]); 
+if imgInfo.SamplesPerPixel == 1
+    imshow( (imread(file_name{1})), [0,2^DICpara.imgBitDepth-1]); 
+elseif imgInfo.SamplesPerPixel == 3
+    imshow( (imread(file_name{1}))); 
+elseif imgInfo.SamplesPerPixel == 4
+    img_temp = imread(file_name{1});
+    imshow(img_temp(:,:,1:3) ); 
+end
 title('Click top-left and the bottom-right corner points','fontweight','normal','fontsize',16);
 
 gridx = zeros(1,2); gridy = zeros(1,2);
@@ -155,12 +164,12 @@ if numImages > 2
     
     % ==============================================
     % Decide DIC as accumulative or incremental mode?
-    % fprintf('--- Choose accumulative or incremental mode ---  \n')
-    % fprintf('     0: Cumulative (By default);  \n')
-    % fprintf('     1: Incremental;  \n')
-    % prompt = 'Input here: ';
-    % DICIncOrNot = input(prompt);
-    DICIncOrNot = 0; % To be implemented in the future for quadtree meshes.
+    fprintf('--- Choose accumulative or incremental mode ---  \n')
+    fprintf('     0: Cumulative (By default);  \n')
+    fprintf('     1: Incremental;  \n')
+    prompt = 'Input here: ';
+     DICIncOrNot = input(prompt);
+    %DICIncOrNot = 1; % To be implemented in the future for quadtree meshes.
 
     try
         switch DICIncOrNot
@@ -168,15 +177,18 @@ if numImages > 2
                 ImgSeqIncUnit = numImages+1;
                 ImgSeqIncROIUpdateOrNot = 1;
             case 1
-                fprintf('Incremental mode: How many frames to update reference image once? \n');
-                prompt = 'Input here: ';
-                ImgSeqIncUnit = input(prompt);
-                fprintf('Update ROI at the same time of updating reference image? \n');
-                fprintf('    0: Do not update ROI; \n'); 
-                fprintf('    1: Manually(Recommended); \n'); 
-                fprintf('    2: Automatically; \n'); 
-                prompt = 'Input here: ';
-                ImgSeqIncROIUpdateOrNot = input(prompt);
+                % fprintf('Incremental mode: How many frames to update reference image once? \n');
+                % prompt = 'Input here: ';
+                % ImgSeqIncUnit = input(prompt);
+                % fprintf('Update ROI at the same time of updating reference image? \n');
+                % fprintf('    0: Do not update ROI; \n'); 
+                % fprintf('    1: Manually(Recommended); \n'); 
+                % fprintf('    2: Automatically; \n'); 
+                % prompt = 'Input here: ';
+                % ImgSeqIncROIUpdateOrNot = input(prompt);
+
+                ImgSeqIncUnit = 1; % Update every frame
+                ImgSeqIncROIUpdateOrNot = 1;
             otherwise
                 ImgSeqIncUnit = numImages+1;
                 ImgSeqIncROIUpdateOrNot = 1;
